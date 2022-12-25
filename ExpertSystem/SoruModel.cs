@@ -8,12 +8,15 @@ namespace ExpertSystem
 {
     public class SoruModel
     {
-        public int KacSecenek;
-        public string Sorun;
-        public List<string> Secenekler = new List<string>();
-        public List<SoruModel> AltSoruModeller = new List<SoruModel>();
+        public int Id { get; set; }
+      //  public int KacSecenek { get; set; }
+        public string Sorun { get; set; }
+        public int BoundedTo { get; set; }
 
-        public SoruModel(int kacSecenek, string sorun, List<string> secenekler, List<SoruModel> altSoruModeller)
+       // public List<string> Secenekler { get; set; } = new List<string>();
+       // public List<SoruModel> AltSoruModeller { get; set; } = new List<SoruModel>();
+
+        /*public SoruModel(int kacSecenek, string sorun, List<string> secenekler, List<SoruModel> altSoruModeller)
         {
             KacSecenek = kacSecenek;
             Sorun = sorun ?? throw new ArgumentNullException(nameof(sorun));
@@ -23,6 +26,6 @@ namespace ExpertSystem
 
         public SoruModel()
         {
-        }
+        }*/
     }
 }

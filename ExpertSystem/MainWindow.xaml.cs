@@ -17,6 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace ExpertSystem
 {
@@ -25,11 +26,15 @@ namespace ExpertSystem
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        public int LastId = 1;
+        private int SiradakiSoru = 2;
+        public List<int> AltModeller = new List<int>();
+
         public MainWindow()
         {
             InitializeComponent();
-            
         }
+
         SoruModel _soruModel = new SoruModel();
 
         private void CevapSayisi_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
@@ -43,90 +48,144 @@ namespace ExpertSystem
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Ekle_Button_Click(object sender, RoutedEventArgs e)
         {
-            _soruModel.KacSecenek = ((int)CevapSayisi.Value);
             _soruModel.Sorun = SorunTx.Text;
-            List<string> liste = new List<string>();
 
-            foreach (var item in CevapSayiSp.Children)
-            {
-                if (item is TextBox)
-                {
-                    if (((TextBox)item).Name.Contains("Cevap"))
-                    {
-                        liste.Add(((TextBox)item).Text);
-                    }
-                }
-            }
-            _soruModel.Secenekler = liste;
-            SorunLabel.Content = _soruModel.Sorun;
-            for (int i = 0; i < _soruModel.Secenekler.Count; i++)
-            {
-                Button tb = new Button();
-                tb.Name = "Bt" + i;
-                tb.Content = _soruModel.Secenekler[i];
-                tb.Click += Tb_Click;
-                BtSp.Children.Add(tb);
-            }
             using (var db = new LiteDatabase("dbtest.db"))
             {
-                // Get a collection (or create, if doesn't exist)
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
-
-                // Create your new customer instance
-                var soruModel = new SoruModel
+                if (col.FindOne(x => x.Id == LastId && x.Sorun == SorunTx.Text) != null)
                 {
-                    KacSecenek = _soruModel.KacSecenek,
-                    Sorun = _soruModel.Sorun,
-                    AltSoruModeller = _soruModel.AltSoruModeller,
-                    Secenekler = _soruModel.Secenekler
-                };
-                
-                // Insert new customer document (Id will be auto-incremented)
-                col.Insert(soruModel);
-                /*// Update a document inside a collection
-                customer.Name = "Jane Doe";
 
-                col.Update(customer);
-
-                // Index document using document Name property
-                col.EnsureIndex(x => x.Name);
-
-                // Use LINQ to query documents (filter, sort, transform)
-                var results = col.Query()
-                    .Where(x => x.Name.StartsWith("J"))
-                    .OrderBy(x => x.Name)
-                    .Select(x => new { x.Name, NameUpper = x.Name.ToUpper() })
-                    .Limit(10)
-                    .ToList();
-
-                // Let's create an index in phone numbers (using expression). It's a multikey index
-                col.EnsureIndex(x => x.Phones);
-
-                // and now we can query phones
-                var r = col.FindOne(x => x.Phones.Contains("8888-5555"));*/
+                }
+                else
+                {
+                    col.Insert(_soruModel);
+                }
+                db.Dispose();
             }
+
+            SoruModelGetir(1);
         }
 
-        private void SoruModelGetir(int Alindi)
+        private async void SoruModelGetir(int Alindi)
         {
             BtSp.Children.Clear();
-            SoruModel sm = _soruModel.AltSoruModeller[Alindi];
-            SorunLabel.Content = sm.Sorun;
-            for (int i = 0; i < sm.Secenekler.Count; i++)
+            
+            using (var db = new LiteDatabase("dbtest.db"))
             {
-                Button tb = new Button();
-                tb.Name = "Bt" + i;
-                tb.Content = sm.Secenekler[i];
-                tb.Click += Tb_Click;
-                BtSp.Children.Add(tb);
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                _soruModel = col.FindOne(x => x.Id == Alindi);
+                SorunLabel.Content = _soruModel.Sorun;
+                LastId = _soruModel.Id;
+                var elemanlar = col.FindAll();
+                int i = 0;
+                foreach (var item in elemanlar)
+                {
+                    if (item.BoundedTo == _soruModel.Id)
+                    {
+                        AltModeller.Add(item.Id);
+                        Button tb = new Button();
+                        tb.Name = "Bt" + i;
+                        tb.Content = item.Sorun;
+                        tb.Click += Tb_Click;
+                        BtSp.Children.Add(tb);
+                        i++;
+                    }
+                }
+                if (i==0)
+                {
+                    MetroDialogSettings metroAyar = new MetroDialogSettings();
+                    metroAyar.AffirmativeButtonText = "Evet";
+                    metroAyar.NegativeButtonText = "Hayır";
+                    var metroResult = await this.ShowMessageAsync("Bilgi", "Yardım Sayfasının Sonuna Ulaştınız Siteye Yönlendirilmek ister misiniz?", MessageDialogStyle.AffirmativeAndNegative, metroAyar);
+                    if (metroResult == MessageDialogResult.Affirmative)
+                    {
+                        System.Diagnostics.Process.Start("http://google.com");
+                    }
+                }
+                db.Dispose();
             }
-            _soruModel = sm;
+            MevcurSorunLab.Content = _soruModel.Sorun;
+            if (_soruModel.BoundedTo == 0)
+            {
+                GeriBt.IsEnabled = false;
+            }
+            else
+            {
+                GeriBt.IsEnabled = true;
+            }
         }
 
+        
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            _soruModel.Sorun = SorunTx.Text;
+            using (var db = new LiteDatabase("dbtest.db"))
+            {
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                if (col.FindOne(x => x.Id == LastId && x.Sorun == SorunTx.Text) != null)
+                {
+
+                }
+                else
+                {
+                    col.Insert(_soruModel);
+                }
+                db.Dispose();
+            }
+            SubModel subModel = new SubModel();
+            subModel.BountId = LastId;
+            subModel.SorunTx.Text = ((TextBox)CevapSayiSp.Children[SiradakiSoru]).Text;
+            SiradakiSoru++;
+            subModel.ShowDialog();
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            using (var db = new LiteDatabase("dbtest.db"))
+            {
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                _soruModel = col.FindById(1);
+                db.Dispose();
+                SoruModelGetir(1);
+            }
+        }
+
+        private void Geri_Button_Click(object sender, RoutedEventArgs e)
+        {
+            SoruModelGetir(_soruModel.BoundedTo);
+            
+        }
+
+        private void AramaTx_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            AramaSp.Children.Clear();
+            if (AramaTx.Text != "")
+            {
+                using (var db = new LiteDatabase("dbtest.db"))
+                {
+                    var col = db.GetCollection<SoruModel>("sorumodelleri");
+                    var elemanlar = col.Find(x => x.Sorun.Contains(AramaTx.Text));
+                    int i = 0;
+                    foreach (var item in elemanlar)
+                    {
+                        Button tb = new Button();
+                        tb.Name = "ID" + item.Id;
+                        tb.Content = item.Sorun;
+                        tb.Click += AramaGenBtClick;
+                        AramaSp.Children.Add(tb);
+                        i++;
+                    }
+                    db.Dispose();
+                }
+            }
+        }
         private void Tb_Click(object sender, RoutedEventArgs e)
         {
+
             Button bt = (Button)sender;
             StackPanel stackPanel = new StackPanel();
             stackPanel = BtSp;
@@ -136,38 +195,27 @@ namespace ExpertSystem
                 {
                     if (((Button)stackPanel.Children[i]).Name == bt.Name)
                     {
-                        SoruModelGetir(i);
+                        using (var db = new LiteDatabase("dbtest.db"))
+                        {
+                            var col = db.GetCollection<SoruModel>("sorumodelleri");
+                            var altElemanlar = col.Find(x => x.BoundedTo == _soruModel.Id);
+                            List<SoruModel> liste = new List<SoruModel>();
+                            liste = altElemanlar.ToList();
+                            db.Dispose();
+                            SoruModelGetir(liste[i].Id);
+                        }
+
                         break;
                     }
                 }
             }
-            /*foreach (var item in stackPanel.Children)
-            {
-                if (((Button)item).Name == bt.Name)
-                {
-                    SoruModelGetir(i);
-                }
-                else
-                {
-                    i++;
-                }
-            }*/
             BtSp = stackPanel;
         }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void AramaGenBtClick(object sender, RoutedEventArgs e)
         {
-            SubModel subModel = new SubModel();
-            subModel.ShowDialog();
-            if (subModel.DialogResult.Value == true)
-            {
-                _soruModel.AltSoruModeller.Add(subModel.TheValue);
-            }
-        }
-
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-        {
-
+            Button bt = (Button)sender;
+            int gonder = int.Parse(bt.Name.Remove(0, 2));
+            SoruModelGetir(gonder);
         }
     }
 }

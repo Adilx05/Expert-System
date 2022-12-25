@@ -4,11 +4,11 @@
 winexe
 C#
 .cs
-C:\Users\Adil\Source\Repos\Adilx05\Expert-System\ExpertSystem\obj\Debug\
+C:\Users\Adil\Source\Repos\Adilx05\Expert-System\ExpertSystem\obj\Release\
 ExpertSystem
 none
 false
-DEBUG;TRACE
+TRACE
 C:\Users\Adil\Source\Repos\Adilx05\Expert-System\ExpertSystem\App.xaml
 2-1399952642
 
@@ -16,5 +16,5 @@ C:\Users\Adil\Source\Repos\Adilx05\Expert-System\ExpertSystem\App.xaml
 211731736256
 MainWindow.xaml;SubModel.xaml;
 
-False
+True
 

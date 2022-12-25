@@ -11,27 +11,36 @@
         <mah:MetroAnimatedTabControl>
             <TabItem Header="TabItem">
                 <Grid Background="#FFE5E5E5">
-                    <Label HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="207" Width="780" Name="SorunLabel">
+                    <Label HorizontalAlignment="Center" Margin="6,10,138,0" VerticalAlignment="Top" Height="207" Width="648" Name="SorunLabel">
                     </Label>
                     <StackPanel Margin="0,222,0,0" Orientation="Horizontal" Name="BtSp" ScrollViewer.HorizontalScrollBarVisibility="Auto" MinWidth="200">
                     </StackPanel>
+                    <Button Content="GeriGit" HorizontalAlignment="Left" Margin="707,10,0,0" VerticalAlignment="Top" Width="75" Click="Geri_Button_Click" Name="GeriBt" IsEnabled="False"/>
+                    <Label Content="Mevcur Yer : " HorizontalAlignment="Left" Margin="659,42,0,0" VerticalAlignment="Top" Height="49" Width="123" Name="MevcurSorunLab"/>
                 </Grid>
             </TabItem>
             <TabItem Header="TabItem">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel Name="CevapSayiSp" Margin="0,0,0,75" CanVerticallyScroll="True">
                         <TextBox TextWrapping="Wrap" Text=""  mah:TextBoxHelper.Watermark="Sorun" Name="SorunTx"/>
-                        <mah:NumericUpDown Name="CevapSayisi" ValueChanged="CevapSayisi_ValueChanged" NumericInputMode="Decimal" > </mah:NumericUpDown>
+                        <mah:NumericUpDown Name="CevapSayisi" ValueChanged="CevapSayisi_ValueChanged" NumericInputMode="Decimal" ></mah:NumericUpDown>
                     </StackPanel>
-                    <Button Content="Ekle" HorizontalAlignment="Left" Margin="723,339,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-                    <Button Content="Alt Model Ekle" HorizontalAlignment="Left" Margin="47,355,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+                    <Button Content="Ekle" HorizontalAlignment="Left" Margin="723,339,0,0" VerticalAlignment="Top" Click="Ekle_Button_Click" />
+                    <Button Content="Alt Model Ekle" HorizontalAlignment="Left" Margin="47,355,0,0" VerticalAlignment="Top" Click="Button_Click_1" />
                     <Button Content="Dbden Al" HorizontalAlignment="Left" Margin="357,344,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
 
                 </Grid>
             </TabItem>
+            <TabItem Header="TabItem">
+                <Grid Background="#FFE5E5E5">
+                    <TextBox HorizontalAlignment="Left" Height="126" Margin="10,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="772" TextChanged="AramaTx_TextChanged" Name="AramaTx"/>
+                    <StackPanel HorizontalAlignment="Left" Height="175" Margin="10,195,0,0" VerticalAlignment="Top" Width="772" Name="AramaSp"/>
+
+                </Grid>
+            </TabItem>
         </mah:MetroAnimatedTabControl>
-        
-        
+
+
 
     </Grid>
 </mah:MetroWindow>

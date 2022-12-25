@@ -1,4 +1,5 @@
 ﻿using ControlzEx.Standard;
+using LiteDB;
 using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,11 @@ namespace ExpertSystem
     public partial class SubModel : MetroWindow
     {
         private SoruModel soruModel = new SoruModel();
+        private int SiradakiSoru = 2;
+        public int BountId;
         public SoruModel TheValue
         {
-            get { return soruModel ; }
+            get { return soruModel; }
         }
         public SubModel()
         {
@@ -33,42 +36,53 @@ namespace ExpertSystem
 
         private void CevapSayisi_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
         {
+            CevapSayiSp.Children.RemoveRange(2, CevapSayiSp.Children.Count - 2);
             for (int i = 0; i < CevapSayisi.Value; i++)
             {
-                CevapSayiSp.Children.RemoveRange(2, CevapSayiSp.Children.Count - 2);
                 TextBox tb = new TextBox();
                 tb.Name = "Cevap" + i;
                 CevapSayiSp.Children.Add(tb);
-                Console.WriteLine(tb.Name);
             }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            soruModel.KacSecenek = ((int)CevapSayisi.Value);
             soruModel.Sorun = SorunTx.Text;
-            List<string> liste = new List<string>();
+            soruModel.BoundedTo = BountId;
 
-            foreach (var item in CevapSayiSp.Children)
+            using (var db = new LiteDatabase("dbtest.db"))
             {
-                if (item is TextBox)
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                if (col.FindOne(x => x.BoundedTo == BountId && x.Sorun == SorunTx.Text) != null)
                 {
-                    if (((TextBox)item).Name.Contains("Cevap"))
-                    {
-                        liste.Add(((TextBox)item).Text);
-                    }
+
                 }
+               else{
+                    col.Insert(soruModel);
+                }
+                db.Dispose();
             }
-            soruModel.Secenekler = liste;
             this.DialogResult = true;
             this.Close();
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            SubModel subMod = new SubModel();
-            subMod.ShowDialog();
-            soruModel.AltSoruModeller.Add(subMod.TheValue);
+            soruModel.Sorun = SorunTx.Text;
+            soruModel.BoundedTo = BountId;
+            using (var db = new LiteDatabase("dbtest.db"))
+            {
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                col.Insert(soruModel);
+                var SonEleman = col.FindOne(x => x.BoundedTo == soruModel.BoundedTo && x.Sorun == soruModel.Sorun);
+                SubModel subMod = new SubModel();
+                subMod.BountId = SonEleman.Id;
+                subMod.SorunTx.Text = ((TextBox)CevapSayiSp.Children[SiradakiSoru]).Text;
+                SiradakiSoru++;
+                db.Dispose();
+                subMod.ShowDialog();
+            }
+            
         }
     }
 }
