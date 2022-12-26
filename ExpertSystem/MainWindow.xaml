@@ -2,24 +2,57 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ExpertSystem"
         mc:Ignorable="d"
         Title="Expert System" Height="450" Width="800">
+
+    <mah:MetroWindow.RightWindowCommands>
+        <mah:WindowCommands>
+            <Button Content="" Name="AdminPanBt" Click="AdminPanBt_Click">
+                <Button.ContentTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconModern Width="22"
+                                        Height="22"
+                                        VerticalAlignment="Center"
+                                        Kind="User" />
+                            <TextBlock Margin="4 0 0 0"
+                         VerticalAlignment="Center"
+                         Text="" />
+                        </StackPanel>
+                    </DataTemplate>
+                </Button.ContentTemplate>
+            </Button>
+        </mah:WindowCommands>
+    </mah:MetroWindow.RightWindowCommands>
+    
     <Grid>
         <mah:MetroAnimatedTabControl>
-            <TabItem Header="TabItem">
+            <TabItem Header="TabItem" Name="AnaEkranTab">
                 <Grid Background="#FFE5E5E5">
                     <Label HorizontalAlignment="Center" Margin="6,10,138,0" VerticalAlignment="Top" Height="207" Width="648" Name="SorunLabel">
                     </Label>
-                    <StackPanel Margin="0,222,0,0" Orientation="Horizontal" Name="BtSp" ScrollViewer.HorizontalScrollBarVisibility="Auto" MinWidth="200">
-                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,222,0,0">
+                        <StackPanel  Orientation="Vertical" Name="BtSp" ScrollViewer.HorizontalScrollBarVisibility="Auto" MinWidth="200">
+                        </StackPanel>
+                    </ScrollViewer>
                     <Button Content="GeriGit" HorizontalAlignment="Left" Margin="707,10,0,0" VerticalAlignment="Top" Width="75" Click="Geri_Button_Click" Name="GeriBt" IsEnabled="False"/>
                     <Label Content="Mevcur Yer : " HorizontalAlignment="Left" Margin="659,42,0,0" VerticalAlignment="Top" Height="49" Width="123" Name="MevcurSorunLab"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="TabItem">
+            <TabItem Header="TabItem" Name="AramaEkranTab">
+                <Grid Background="#FFE5E5E5">
+                    <TextBox HorizontalAlignment="Left" Height="126" Margin="10,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="772" TextChanged="AramaTx_TextChanged" Name="AramaTx"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="175" Margin="10,195,0,0" VerticalAlignment="Top" Width="772">
+                        <StackPanel HorizontalAlignment="Left" Height="Auto" Width="772"  Name="AramaSp" CanVerticallyScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem" Name="SorunEkleTab" Visibility="Hidden">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel Name="CevapSayiSp" Margin="0,0,0,75" CanVerticallyScroll="True">
                         <TextBox TextWrapping="Wrap" Text=""  mah:TextBoxHelper.Watermark="Sorun" Name="SorunTx"/>
@@ -31,20 +64,35 @@
 
                 </Grid>
             </TabItem>
-            <TabItem Header="TabItem">
+            <TabItem Header="TabItem" Name="DegistirTab" Visibility="Hidden">
                 <Grid Background="#FFE5E5E5">
-                    <TextBox HorizontalAlignment="Left" Height="126" Margin="10,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="772" TextChanged="AramaTx_TextChanged" Name="AramaTx"/>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="175" Margin="10,195,0,0" VerticalAlignment="Top" Width="772">
-                        <StackPanel HorizontalAlignment="Left" Height="Auto" Width="772"  Name="AramaSp" CanVerticallyScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    </StackPanel>
+                    <GroupBox Header="Arama" HorizontalAlignment="Left" Height="175" Margin="10,10,0,0" VerticalAlignment="Top" Width="341">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBox TextWrapping="Wrap" Text=""  mah:TextBoxHelper.Watermark="Sorunu Girin" Name="AranacakTextTb" TextChanged="AranacakTextTb_TextChanged"/>
+                                <Label Content="Yada" HorizontalAlignment="Center"/>
+                                <Label Content="ID İle Arayın" HorizontalAlignment="Center"/>
+                                <mah:NumericUpDown Value="0" Name="AranacakIdTb" ValueChanged="AranacakIdTb_ValueChanged"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+                    <Label Content="İçerik" HorizontalAlignment="Left" Margin="410,10,0,0" VerticalAlignment="Top" Height="175" Width="372" Name="DegisecekLb"/>
+                    <TextBox HorizontalAlignment="Left" Height="23" Margin="10,214,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="772" mah:TextBoxHelper.Watermark="Yeni Değer" Name="DegisecekTx"/>
+                    <Button Content="Kaydet" HorizontalAlignment="Left" Margin="348,305,0,0" VerticalAlignment="Top" Width="75" Name="DegisKaydetBt" Click="DegisKaydetBt_Click" IsEnabled="False"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="TabItem" Name="SingleEkleTab" Visibility="Hidden">
+                <Grid Background="#FFE5E5E5">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBox  TextWrapping="Wrap" Text="" mah:TextBoxHelper.Watermark="Eklenecek Sorun" Name="SingleEkleTb" />
+                            <Label Content="Bağlanılacak ID"/>
+                            <mah:NumericUpDown Value="0" Name="SingleEkleVal"/>
+                            <Button Content="Ekle" Width="75" HorizontalAlignment="Center" Name="SingleEkleBt" Click="SingleEkleBt_Click" Margin="50"/>
+                        </StackPanel>
                     </ScrollViewer>
-                   
-
                 </Grid>
             </TabItem>
         </mah:MetroAnimatedTabControl>
-
-
-
     </Grid>
 </mah:MetroWindow>

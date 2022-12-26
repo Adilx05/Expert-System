@@ -29,13 +29,15 @@ namespace ExpertSystem
     {
         public int LastId = 1;
         private int SiradakiSoru = 2;
+        private int degisecekId;
         private bool isEditable = false;
-        private bool isFirst = true;
+        private bool isWarned = false;
         public List<int> AltModeller = new List<int>();
 
         public MainWindow()
         {
             InitializeComponent();
+            SoruModelGetir(1);
         }
 
         SoruModel _soruModel = new SoruModel();
@@ -58,6 +60,11 @@ namespace ExpertSystem
             {
                 return;
             }
+            if (!isWarned)
+            {
+                KullaniciUyar();
+                return;
+            }
             _soruModel.Sorun = SorunTx.Text;
             _soruModel.Id = 1;
             using (var db = new LiteDatabase("dbtest.db"))
@@ -73,18 +80,43 @@ namespace ExpertSystem
                 }
                 db.Dispose();
             }
-
+            isEditable = false;
+            isWarned = false;
             SoruModelGetir(1);
+
+        }
+
+        private async void KullaniciUyar()
+        {
+            MetroDialogSettings metroAyar = new MetroDialogSettings();
+            metroAyar.AffirmativeButtonText = "Evet";
+            metroAyar.NegativeButtonText = "Hayır";
+            var metroResult = await this.ShowMessageAsync("Bilgi", "Bu işlemden sonra alt model ekleyemezsiniz! Onaylıyor musunuz?", MessageDialogStyle.AffirmativeAndNegative, metroAyar);
+            if (metroResult == MessageDialogResult.Affirmative)
+            {
+                isEditable = true;
+                isWarned = true;
+            }
+            else
+            {
+                isEditable = false;
+            }
         }
 
         private async void SoruModelGetir(int Alindi)
         {
             BtSp.Children.Clear();
-            
+
             using (var db = new LiteDatabase("dbtest.db"))
             {
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
-                _soruModel = col.FindOne(x => x.Id == Alindi);
+                var getir = col.FindOne(x => x.Id == Alindi);
+                if (getir == null)
+                {
+                    await this.ShowMessageAsync("Hata", "Sistemde kayıtlı bir veritabanı bulunmuyor!");
+                    return;
+                }
+                _soruModel = getir;
                 SorunLabel.Content = _soruModel.Sorun;
                 LastId = _soruModel.Id;
                 var elemanlar = col.FindAll();
@@ -102,7 +134,7 @@ namespace ExpertSystem
                         i++;
                     }
                 }
-                if (i==0)
+                if (i == 0)
                 {
                     MetroDialogSettings metroAyar = new MetroDialogSettings();
                     metroAyar.AffirmativeButtonText = "Evet";
@@ -126,16 +158,14 @@ namespace ExpertSystem
             }
         }
 
-        
-
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             DbKontrolEt();
-            if(!isEditable)
+            if (!isEditable)
             {
                 return;
             }
-            
+
             using (var db = new LiteDatabase("dbtest.db"))
             {
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
@@ -167,12 +197,12 @@ namespace ExpertSystem
             subModel.SorunTx.Text = ((TextBox)CevapSayiSp.Children[SiradakiSoru]).Text;
             SiradakiSoru++;
             subModel.ShowDialog();
-            
+
         }
 
         private async void DbKontrolEt()
         {
-            if (File.Exists("dbtest.db") && isFirst)
+            if (File.Exists("dbtest.db") && !isEditable)
             {
                 MetroDialogSettings metroAyar = new MetroDialogSettings();
                 metroAyar.AffirmativeButtonText = "Evet";
@@ -185,10 +215,9 @@ namespace ExpertSystem
                 }
                 else
                 {
-                    isEditable =  false;
+                    isEditable = false;
+                    return;
                 }
-
-                isFirst = false;
             }
             isEditable = true;
         }
@@ -207,7 +236,7 @@ namespace ExpertSystem
         private void Geri_Button_Click(object sender, RoutedEventArgs e)
         {
             SoruModelGetir(_soruModel.BoundedTo);
-            
+
         }
 
         private void AramaTx_TextChanged(object sender, TextChangedEventArgs e)
@@ -266,6 +295,111 @@ namespace ExpertSystem
             Button bt = (Button)sender;
             int gonder = int.Parse(bt.Name.Remove(0, 2));
             SoruModelGetir(gonder);
+        }
+
+        private void DegisKaydetBt_Click(object sender, RoutedEventArgs e)
+        {
+            using (var db = new LiteDatabase("dbtest.db"))
+            {
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                var eleman = col.FindOne(x => x.Id == degisecekId);
+                eleman.Sorun = DegisecekTx.Text;
+                col.Update(eleman);
+                db.Dispose();
+            }
+        }
+
+        private void AranacakTextTb_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (AranacakTextTb.Text != "")
+            {
+                using (var db = new LiteDatabase("dbtest.db"))
+                {
+                    var col = db.GetCollection<SoruModel>("sorumodelleri");
+                    var eleman = col.FindOne(x => x.Sorun.Contains(AranacakTextTb.Text));
+                    if (eleman != null)
+                    {
+                        DegisecekLb.Content = "Id = " + eleman.Id + Environment.NewLine + "İçerik : " + eleman.Sorun;
+                        degisecekId = eleman.Id;
+                        DegisKaydetBt.IsEnabled = true;
+                    }
+                    else
+                    {
+                        DegisecekLb.Content = "Gösterilecek Bir Sorun Yok!";
+                        DegisKaydetBt.IsEnabled = false;
+                    }
+                    db.Dispose();
+                }
+            }
+        }
+
+        private void AranacakIdTb_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double?> e)
+        {
+            if (AranacakIdTb.Value != 0 && AranacakIdTb.Value != null)
+            {
+                using (var db = new LiteDatabase("dbtest.db"))
+                {
+                    var col = db.GetCollection<SoruModel>("sorumodelleri");
+                    var eleman = col.FindOne(x => x.Id == ((int)AranacakIdTb.Value));
+                    if (eleman != null)
+                    {
+                        DegisecekLb.Content = "Id = " + eleman.Id + Environment.NewLine + "İçerik : " + eleman.Sorun;
+                        degisecekId = eleman.Id;
+                        DegisKaydetBt.IsEnabled = true;
+                    }
+                    else
+                    {
+                        DegisecekLb.Content = "Gösterilecek Bir Sorun Yok!";
+                        DegisKaydetBt.IsEnabled = false;
+                    }
+                    db.Dispose();
+                }
+            }
+        }
+
+        private void SingleEkleBt_Click(object sender, RoutedEventArgs e)
+        {
+            if ((int)SingleEkleVal.Value <= 0 && !SingleEkleVal.Value.HasValue)
+            {
+                this.ShowMessageAsync("Hata!", "1 veya daha büyük bir ID'ye bağlamalısınız!");
+                return;
+            }
+            SoruModel sm = new SoruModel();
+            sm.BoundedTo = (int)SingleEkleVal.Value;
+            sm.Sorun = SingleEkleTb.Text;
+            using (var db = new LiteDatabase("dbtest.db"))
+            {
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                col.Insert(sm);
+                db.Dispose();
+            }
+
+        }
+
+        private async void AdminPanBt_Click(object sender, RoutedEventArgs e)
+        {
+            LoginDialogSettings lds = new LoginDialogSettings();
+            lds.UsernameWatermark = "Kullanıcı Adı...";
+            lds.PasswordWatermark = "Parola...";
+            lds.AffirmativeButtonText = "Giriş Yap";
+            lds.NegativeButtonText = "İptal";
+            lds.NegativeButtonVisibility = Visibility.Visible;
+            var dialogRes = await this.ShowLoginAsync("Giriş", "Lütfen Id Ve Parolanızı Girin!",lds);
+            if (dialogRes == null)
+            {
+                return;
+            }
+            if ( dialogRes.Username == "admin" && dialogRes.Password == "admin")
+            {
+                SorunEkleTab.Visibility = Visibility.Visible;
+                DegistirTab.Visibility = Visibility.Visible;
+                SingleEkleTab.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                await this.ShowMessageAsync("Hata", "Kullanıcı adı veya parola hatalı!");
+            }
+
         }
     }
 }
