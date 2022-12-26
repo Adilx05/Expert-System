@@ -34,7 +34,11 @@
             <TabItem Header="TabItem">
                 <Grid Background="#FFE5E5E5">
                     <TextBox HorizontalAlignment="Left" Height="126" Margin="10,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="772" TextChanged="AramaTx_TextChanged" Name="AramaTx"/>
-                    <StackPanel HorizontalAlignment="Left" Height="175" Margin="10,195,0,0" VerticalAlignment="Top" Width="772" Name="AramaSp"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="175" Margin="10,195,0,0" VerticalAlignment="Top" Width="772">
+                        <StackPanel HorizontalAlignment="Left" Height="Auto" Width="772"  Name="AramaSp" CanVerticallyScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    </StackPanel>
+                    </ScrollViewer>
+                   
 
                 </Grid>
             </TabItem>

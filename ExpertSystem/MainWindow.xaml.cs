@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using MahApps.Metro.Controls.Dialogs;
+using System.IO;
 
 namespace ExpertSystem
 {
@@ -28,6 +29,8 @@ namespace ExpertSystem
     {
         public int LastId = 1;
         private int SiradakiSoru = 2;
+        private bool isEditable = false;
+        private bool isFirst = true;
         public List<int> AltModeller = new List<int>();
 
         public MainWindow()
@@ -50,6 +53,11 @@ namespace ExpertSystem
 
         private void Ekle_Button_Click(object sender, RoutedEventArgs e)
         {
+            DbKontrolEt();
+            if (!isEditable)
+            {
+                return;
+            }
             _soruModel.Sorun = SorunTx.Text;
             _soruModel.Id = 1;
             using (var db = new LiteDatabase("dbtest.db"))
@@ -122,6 +130,12 @@ namespace ExpertSystem
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            DbKontrolEt();
+            if(!isEditable)
+            {
+                return;
+            }
+            
             using (var db = new LiteDatabase("dbtest.db"))
             {
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
@@ -154,6 +168,29 @@ namespace ExpertSystem
             SiradakiSoru++;
             subModel.ShowDialog();
             
+        }
+
+        private async void DbKontrolEt()
+        {
+            if (File.Exists("dbtest.db") && isFirst)
+            {
+                MetroDialogSettings metroAyar = new MetroDialogSettings();
+                metroAyar.AffirmativeButtonText = "Evet";
+                metroAyar.NegativeButtonText = "Hayır";
+                var metroResult = await this.ShowMessageAsync("Bilgi", "Mevcut bir veritabanı bulunuyor yeni giriş yapmnak için silinecektir. Onaylıyor musunuz?", MessageDialogStyle.AffirmativeAndNegative, metroAyar);
+                if (metroResult == MessageDialogResult.Affirmative)
+                {
+                    File.Delete("dbtest.db");
+                    isEditable = true;
+                }
+                else
+                {
+                    isEditable =  false;
+                }
+
+                isFirst = false;
+            }
+            isEditable = true;
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
