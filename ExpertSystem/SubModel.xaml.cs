@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace ExpertSystem
 {
@@ -47,6 +48,7 @@ namespace ExpertSystem
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+           
             soruModel.Sorun = SorunTx.Text;
             soruModel.BoundedTo = BountId;
 
@@ -73,8 +75,22 @@ namespace ExpertSystem
             using (var db = new LiteDatabase("dbtest.db"))
             {
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
-                col.Insert(soruModel);
+                if (col.FindOne(x => x.BoundedTo == BountId && x.Sorun == SorunTx.Text) != null)
+                {
+
+                }
+                else
+                {
+                    col.Insert(soruModel);
+                }
                 var SonEleman = col.FindOne(x => x.BoundedTo == soruModel.BoundedTo && x.Sorun == soruModel.Sorun);
+                var bagliEleman = col.Find(x => x.BoundedTo == SonEleman.Id);
+                if (bagliEleman != null && bagliEleman.ToList().Count == ((int)CevapSayisi.Value))
+                {
+                    this.ShowMessageAsync("Hata", "Girilen Eleman Sayısı Kadar Veri Girişi Yapıldı!");
+                    db.Dispose();
+                    return;
+                }
                 SubModel subMod = new SubModel();
                 subMod.BountId = SonEleman.Id;
                 subMod.SorunTx.Text = ((TextBox)CevapSayiSp.Children[SiradakiSoru]).Text;

@@ -51,7 +51,7 @@ namespace ExpertSystem
         private void Ekle_Button_Click(object sender, RoutedEventArgs e)
         {
             _soruModel.Sorun = SorunTx.Text;
-
+            _soruModel.Id = 1;
             using (var db = new LiteDatabase("dbtest.db"))
             {
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
@@ -122,6 +122,18 @@ namespace ExpertSystem
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            using (var db = new LiteDatabase("dbtest.db"))
+            {
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                var bagliEleman = col.Find(x => x.BoundedTo == _soruModel.Id);
+                if (bagliEleman != null && bagliEleman.ToList().Count == ((int)CevapSayisi.Value))
+                {
+                    this.ShowMessageAsync("Hata", "Girilen Eleman Sayısı Kadar Veri Girişi Yapıldı!");
+                    db.Dispose();
+                    return;
+                }
+                db.Dispose();
+            }
             _soruModel.Sorun = SorunTx.Text;
             using (var db = new LiteDatabase("dbtest.db"))
             {
@@ -141,6 +153,7 @@ namespace ExpertSystem
             subModel.SorunTx.Text = ((TextBox)CevapSayiSp.Children[SiradakiSoru]).Text;
             SiradakiSoru++;
             subModel.ShowDialog();
+            
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
