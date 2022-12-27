@@ -6,16 +6,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ExpertSystem"
         mc:Ignorable="d"
-        Title="SubModel" Height="450" Width="800">
+        Title="Alt Başlık Ekle" Height="450" Width="800">
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,0,75">
             <StackPanel Name="CevapSayiSp" >
-                <TextBox TextWrapping="Wrap" Text=""  mah:TextBoxHelper.Watermark="Sorun" Name="SorunTx" IsEnabled="False" />
+                <TextBox AcceptsReturn="True" TextWrapping="Wrap" Text=""  mah:TextBoxHelper.Watermark="Sorun-başlık giriniz." Name="SorunTx" IsEnabled="False" />
                 <mah:NumericUpDown Name="CevapSayisi" ValueChanged="CevapSayisi_ValueChanged" Value="0" ></mah:NumericUpDown>
             </StackPanel>
         </ScrollViewer>
-        <Button Content="Ekle" HorizontalAlignment="Left" Margin="723,339,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <Button Content="Alt Model Ekle" HorizontalAlignment="Left" Margin="47,355,0,0" VerticalAlignment="Top" Click="Button_Click_1" Name="AltModelEkleBt"/>
+        <Button Content="Ekle" HorizontalAlignment="Left" Margin="756,397,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Button Content="Alt Başlık Ekle" HorizontalAlignment="Left" Margin="10,397,0,0" VerticalAlignment="Top" Click="Button_Click_1" Name="AltModelEkleBt"/>
 
     </Grid>
 </mah:MetroWindow>

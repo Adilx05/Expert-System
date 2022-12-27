@@ -228,15 +228,22 @@ namespace ExpertSystem
             {
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
                 _soruModel = col.FindById(1);
+                if (_soruModel != null)
+                {
+                    SoruModelGetir(1);
+                }
+                else
+                {
+                    this.ShowMessageAsync("Hata", "Veriler bulunamadı!");
+                }
                 db.Dispose();
-                SoruModelGetir(1);
+                
             }
         }
 
         private void Geri_Button_Click(object sender, RoutedEventArgs e)
         {
             SoruModelGetir(_soruModel.BoundedTo);
-
         }
 
         private void AramaTx_TextChanged(object sender, TextChangedEventArgs e)
@@ -359,9 +366,9 @@ namespace ExpertSystem
 
         private void SingleEkleBt_Click(object sender, RoutedEventArgs e)
         {
-            if ((int)SingleEkleVal.Value <= 0 && !SingleEkleVal.Value.HasValue)
+            if (!SingleEkleVal.Value.HasValue && SingleEkleVal.Value <= 0 && SingleEkleTb.Text == "")
             {
-                this.ShowMessageAsync("Hata!", "1 veya daha büyük bir ID'ye bağlamalısınız!");
+                this.ShowMessageAsync("Hata", "Lütfen istenilen yerleri eksiksiz doldurun!");
                 return;
             }
             SoruModel sm = new SoruModel();
@@ -370,7 +377,15 @@ namespace ExpertSystem
             using (var db = new LiteDatabase("dbtest.db"))
             {
                 var col = db.GetCollection<SoruModel>("sorumodelleri");
-                col.Insert(sm);
+                var duplicate = col.FindOne(x => x.BoundedTo == sm.BoundedTo && x.Sorun == sm.Sorun);
+                if (duplicate != null)
+                {
+
+                }
+                else
+                {
+                    col.Insert(sm);
+                }
                 db.Dispose();
             }
 
@@ -400,6 +415,41 @@ namespace ExpertSystem
                 await this.ShowMessageAsync("Hata", "Kullanıcı adı veya parola hatalı!");
             }
 
+        }
+
+        private void AltModelEkleSingle_Click(object sender, RoutedEventArgs e)
+        {
+            if (!SingleEkleVal.Value.HasValue && SingleEkleVal.Value <= 0 && SingleEkleTb.Text == "")
+            {
+                this.ShowMessageAsync("Hata", "Lütfen istenilen yerleri eksiksiz doldurun!");
+                return;
+            }
+            SoruModel sm = new SoruModel();
+            sm.BoundedTo = (int)SingleEkleVal.Value;
+            sm.Sorun = SingleEkleTb.Text;
+            using (var db = new LiteDatabase("dbtest.db"))
+            {
+                var col = db.GetCollection<SoruModel>("sorumodelleri");
+                var duplicate = col.FindOne(x => x.BoundedTo == sm.BoundedTo && x.Sorun == sm.Sorun);
+                if (duplicate != null)
+                {
+                    SubModel subModel = new SubModel();
+                    subModel.BountId = duplicate.Id;
+                    subModel.SorunTx.IsEnabled = true;
+                    subModel.ShowDialog();
+                }
+                else
+                {
+                    col.Insert(sm);
+                    var yeniSm = col.FindOne(x => x.BoundedTo == sm.BoundedTo && x.Sorun == sm.Sorun);
+                    SubModel subModel = new SubModel();
+                    subModel.BountId = yeniSm.Id;
+                    subModel.SorunTx.IsEnabled = true;
+                    subModel.ShowDialog();
+
+                }
+                db.Dispose();
+            }
         }
     }
 }
