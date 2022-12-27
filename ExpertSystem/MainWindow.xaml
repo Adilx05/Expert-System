@@ -33,7 +33,12 @@
         <mah:MetroAnimatedTabControl>
             <TabItem Header="Sorun Listele" Name="AnaEkranTab">
                 <Grid Background="#FFE5E5E5">
-                    <Label HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="188" Width="648" Name="SorunLabel">
+                    <Label HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="188" Width="648" >
+                        <Label>
+                            <Label.Content>
+                                <AccessText TextWrapping="Wrap" Text="" Name="SorunLabel"/>
+                            </Label.Content>
+                        </Label>
                     </Label>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,203,0,0">
                         <StackPanel  Orientation="Vertical" Name="BtSp" ScrollViewer.HorizontalScrollBarVisibility="Auto" MinWidth="200">

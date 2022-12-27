@@ -65,6 +65,10 @@ namespace ExpertSystem
                 KullaniciUyar();
                 return;
             }
+            if (SorunTx.Text == "")
+            {
+                this.ShowMessageAsync("Hata", "Lütfen gerekli alanları doldurun!");
+            }
             _soruModel.Sorun = SorunTx.Text;
             _soruModel.Id = 1;
             using (var db = new LiteDatabase("dbtest.db"))
@@ -117,7 +121,7 @@ namespace ExpertSystem
                     return;
                 }
                 _soruModel = getir;
-                SorunLabel.Content = _soruModel.Sorun;
+                SorunLabel.Text = _soruModel.Sorun;
                 LastId = _soruModel.Id;
                 var elemanlar = col.FindAll();
                 int i = 0;
@@ -164,6 +168,10 @@ namespace ExpertSystem
             if (!isEditable)
             {
                 return;
+            }
+            if (SorunTx.Text == "")
+            {
+                this.ShowMessageAsync("Hata", "Lütfen gerekli alanları doldurun!");
             }
 
             using (var db = new LiteDatabase("dbtest.db"))
